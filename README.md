@@ -7,9 +7,9 @@ This project enables semantic search functionality within a Telegram group or ch
 Status: in progress
 
 - [Done] Embedding layer (mock)
-- [To do] VectorDB layer to store embeddings and metadata (post url, creation datetime, last edit datetime, etc.)
-- [To do] Indexing (initial, new posts, removed posts, edited posts)
-- [To do] Search (query=text, available only to subscribers)
-- [To do] Logging (request datetime, response datetime, etc.)
-- [To do] jina clip v2 for multimodal multilingual embedding (quantize + onnx)
+- [Done] Qdrant layer to store vectors + metadata
+- [To do] Posts indexing
+- [To do] Search
+- [To do] Logging
+- [To do] Add some real embedding model (text + image, Russian support)
 - [To do] etc.
