@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List
 
+import numpy as np
+
 
 class EmbedderBase(ABC):
     """Abstract base class for embedding models
@@ -26,10 +28,10 @@ class MockEmbedder(EmbedderBase):
         self.size = size
 
     def embed_text(self, text: str) -> List[float]:
-        return [0] * self.size
+        return np.random.rand(self.size).tolist()
 
     def embed_image(self, image_path: str) -> List[float]:
-        return [0] * self.size
+        return np.random.rand(self.size).tolist()
 
 
 def create_embedder(model_name: str) -> EmbedderBase:
