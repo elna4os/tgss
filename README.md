@@ -4,10 +4,28 @@ This project enables semantic search functionality within a Telegram group or ch
 
 ---
 
-Status: in progress
+<ins>Status</ins>: in progress
 
-- [Done] Embedding layer (mock)
-- [Done] Qdrant layer to store vectors + metadata
-- [Done] Posts indexing (initial/new/edited/deleted)
+---
+
+<ins>How to run:</ins>
+
+- Create Telegram user session (needed for indexing posts):
+  ```bash
+  cd components/bot
+  API_ID=... API_HASH=... python auth.py
+  ```
+- Up services:
+  ```bash
+  docker compose up --build -d
+  ```
+
+---
+
+<ins>To do</ins>:
+
+- [Done] ~~Embedding layer (mock)~~
+- [Done] ~~Qdrant layer to store vectors + metadata~~
+- [Done] ~~Posts indexing (initial/new/edited/deleted)~~
 - [To do] Search (limit usage to channel members)
 - [To do] Replace embedding model with a real one (text + image, Russian support)
