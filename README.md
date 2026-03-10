@@ -8,8 +8,6 @@ Status: in progress
 
 - [Done] Embedding layer (mock)
 - [Done] Qdrant layer to store vectors + metadata
-- [To do] Posts indexing
-- [To do] Search
-- [To do] Logging
-- [To do] Add some real embedding model (text + image, Russian support)
-- [To do] etc.
+- [Done] Posts indexing (initial/new/edited/deleted)
+- [To do] Search (limit usage to channel members)
+- [To do] Replace embedding model with a real one (text + image, Russian support)
