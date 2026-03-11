@@ -27,5 +27,6 @@ This project enables semantic search functionality within a Telegram group or ch
 - [Done] ~~Embedding layer (mock)~~
 - [Done] ~~Qdrant layer to store vectors + metadata~~
 - [Done] ~~Posts indexing (initial/new/edited/deleted)~~
-- [To do] Search (limit usage to channel members)
+- [Done] ~~Search (limit usage to channel members)~~
 - [To do] Replace embedding model with a real one (text + image, Russian support)
+- [To do] Better UX for search results

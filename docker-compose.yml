@@ -54,6 +54,23 @@ services:
       - POSTGRES_DSN=postgresql://tgss:tgss@postgres:5432/tgss
     volumes:
       - ./session:/data
+  bot:
+    build:
+      context: ./components/bot
+      dockerfile: Dockerfile
+    depends_on:
+      embedder:
+        condition: service_started
+      qdrant:
+        condition: service_started
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - CHANNEL_ID=${CHANNEL_ID}
+      - EMBEDDER_URL=http://embedder:8000
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - QDRANT_COLLECTION=posts
+      - SEARCH_LIMIT=${SEARCH_LIMIT:-5}
 
 volumes:
   qdrant_data:
