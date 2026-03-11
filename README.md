@@ -12,7 +12,7 @@ This project enables semantic search functionality within a Telegram group or ch
 
 - Create Telegram user session (needed for indexing posts):
   ```bash
-  cd components/bot
+  cd components/indexer
   API_ID=... API_HASH=... python auth.py
   ```
 - Up services:

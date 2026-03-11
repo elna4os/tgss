@@ -29,9 +29,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-  bot:
+  indexer:
     build:
-      context: ./components/bot
+      context: ./components/indexer
       dockerfile: Dockerfile
     depends_on:
       embedder:
