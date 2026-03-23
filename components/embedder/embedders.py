@@ -20,7 +20,7 @@ class EmbedderBase(ABC):
 
 
 class MockEmbedder(EmbedderBase):
-    """A mock embedder for deveopment purposes
+    """A mock embedder for development purposes
     """
 
     def __init__(self, size: int = 32):

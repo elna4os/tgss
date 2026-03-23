@@ -10,15 +10,17 @@ This project enables semantic search functionality within a Telegram group or ch
 
 <ins>How to run:</ins>
 
+- Create a Telegram bot through BotFather and add it to the target group/channel as admin (with read permissions)
 - Create Telegram user session (needed for indexing posts):
   ```bash
   cd components/indexer
   API_ID=... API_HASH=... python auth.py
   ```
-- Up services:
+- Start:
   ```bash
   docker compose up --build -d
   ```
+- In bot chat, use `/search <query>` to get relevant posts
 
 ---
 
