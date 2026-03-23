@@ -65,6 +65,16 @@ class EmbedderClient:
 
             return data["embedding"]
 
+    async def get_vector_size(self) -> int:
+        """Fetches vector size from the embedding service."""
+
+        session = await self._get_session()
+        async with session.get(f"{self._base_url}/vector_size") as resp:
+            resp.raise_for_status()
+            data = await resp.json()
+
+            return int(data["vector_size"])
+
     async def close(self) -> None:
         """Closes the aiohttp session if it exists and is not already closed."""
 

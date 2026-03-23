@@ -18,13 +18,15 @@ async def main():
     """
 
     db = await Database.create(dsn=config.POSTGRES_DSN)
+    embedder = EmbedderClient(base_url=config.EMBEDDER_URL)
+    vector_size = await embedder.get_vector_size()
+
     qdrant = await QdrantStore.create(
         host=config.QDRANT_HOST,
         port=config.QDRANT_PORT,
         collection=config.QDRANT_COLLECTION,
-        vector_size=config.VECTOR_SIZE
+        vector_size=vector_size
     )
-    embedder = EmbedderClient(base_url=config.EMBEDDER_URL)
 
     tg_client = TelegramClient(
         session=config.SESSION_PATH,

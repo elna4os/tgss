@@ -11,7 +11,6 @@ EMBEDDER_URL = os.getenv("EMBEDDER_URL", "http://embedder:8000")
 QDRANT_HOST = os.getenv("QDRANT_HOST", "qdrant")
 QDRANT_PORT = int(os.getenv("QDRANT_PORT", "6333"))
 QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "posts")
-VECTOR_SIZE = int(os.getenv("VECTOR_SIZE", "32"))
 
 POSTGRES_DSN = os.environ["POSTGRES_DSN"]
 

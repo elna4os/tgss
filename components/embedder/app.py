@@ -17,6 +17,10 @@ def create_app(embedder: EmbedderBase) -> FastAPI:
     async def embed_image(image: UploadFile = File(...)) -> EmbedResponse:
         return EmbedResponse(embedding=embedder.embed_image(await image.read()))
 
+    @app.get("/vector_size")
+    async def get_vector_size():
+        return {"vector_size": embedder.get_vector_size()}
+
     @app.get("/health")
     async def health_check():
         return {
