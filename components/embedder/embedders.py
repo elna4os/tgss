@@ -14,7 +14,7 @@ class EmbedderBase(ABC):
         pass
 
     @abstractmethod
-    def embed_image(self, image_path: str) -> List[float]:
+    def embed_image(self, image: bytes) -> List[float]:
         """Convert an image file into an embedding vector"""
         pass
 
@@ -30,7 +30,7 @@ class MockEmbedder(EmbedderBase):
     def embed_text(self, text: str) -> List[float]:
         return np.random.rand(self.size).tolist()
 
-    def embed_image(self, image_path: str) -> List[float]:
+    def embed_image(self, image: bytes) -> List[float]:
         return np.random.rand(self.size).tolist()
 
 
