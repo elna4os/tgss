@@ -6,7 +6,13 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - EMBEDDER_MODEL=mock
+      - EMBEDDER_MODEL=jina-clip-v2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 100
+      start_period: 10s
   qdrant:
     image: qdrant/qdrant:latest
     ports:
@@ -35,7 +41,7 @@ services:
       dockerfile: Dockerfile
     depends_on:
       embedder:
-        condition: service_started
+        condition: service_healthy
       qdrant:
         condition: service_started
       postgres:

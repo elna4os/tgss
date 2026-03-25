@@ -81,12 +81,13 @@ async def _initial_index(client: TelegramClient, indexer: Indexer) -> None:
 
     max_indexed_id = await indexer.db.get_max_post_id(config.CHANNEL_ID)
 
-    kwargs: dict = {"reverse": True}
+    kwargs: dict = {'reverse': True}
     if max_indexed_id:
         # Resume from where we left off
         kwargs["min_id"] = max_indexed_id
         logger.info("Resuming from post_id=%d", max_indexed_id)
     elif config.INITIAL_INDEX_MONTHS > 0:
+        # TODO Magic constant :)
         cutoff = datetime.now(timezone.utc) - timedelta(days=config.INITIAL_INDEX_MONTHS * 30)
         kwargs["offset_date"] = cutoff
 
@@ -94,8 +95,7 @@ async def _initial_index(client: TelegramClient, indexer: Indexer) -> None:
     async for message in client.iter_messages(config.CHANNEL_ID, **kwargs):
         await indexer.index_message(message)
         count += 1
-        if count % 100 == 0:
-            logger.info("Indexed %d messages...", count)
+        logger.info("Indexed %d messages...", count)
 
     logger.info("Initial indexing complete: %d messages processed", count)
 

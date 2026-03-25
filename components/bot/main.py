@@ -77,6 +77,7 @@ async def search_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         results = await qdrant.query_points(
             collection_name=config.QDRANT_COLLECTION,
             query=vector,
+            # TODO Magic constant :)
             limit=config.SEARCH_LIMIT * 3,
             with_payload=True,
         )
