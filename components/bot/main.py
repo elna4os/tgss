@@ -90,8 +90,13 @@ async def init_resources(app: Application) -> None:
     app.bot_data["qdrant"] = AsyncQdrantClient(host=config.QDRANT_HOST, port=config.QDRANT_PORT)
 
 
+async def close_resources(app: Application) -> None:
+    await app.bot_data["http"].close()
+    await app.bot_data["qdrant"].close()
+
+
 def main() -> None:
-    app = ApplicationBuilder().token(config.BOT_TOKEN).post_init(init_resources).build()
+    app = ApplicationBuilder().token(config.BOT_TOKEN).post_init(init_resources).post_shutdown(close_resources).build()
     app.add_handler(CommandHandler("search", search_command))
     logger.info("Bot is running")
     app.run_polling()
