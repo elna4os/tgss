@@ -1,8 +1,9 @@
 import asyncio
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import config
+from dateutil.relativedelta import relativedelta
 from db import Database
 from embedder_client import EmbedderClient
 from indexer import Indexer
@@ -87,8 +88,7 @@ async def _initial_index(client: TelegramClient, indexer: Indexer) -> None:
         kwargs["min_id"] = max_indexed_id
         logger.info("Resuming from post_id=%d", max_indexed_id)
     elif config.INITIAL_INDEX_MONTHS > 0:
-        # TODO Magic constant :)
-        cutoff = datetime.now(timezone.utc) - timedelta(days=config.INITIAL_INDEX_MONTHS * 30)
+        cutoff = datetime.now(timezone.utc) - relativedelta(months=config.INITIAL_INDEX_MONTHS)
         kwargs["offset_date"] = cutoff
 
     count = 0
