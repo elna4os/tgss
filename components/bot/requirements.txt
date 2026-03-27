@@ -1,3 +1,4 @@
 aiohttp==3.13.3
+python-dotenv==1.2.2
 python-telegram-bot==22.6
 qdrant-client==1.17.0

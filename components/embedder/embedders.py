@@ -19,22 +19,19 @@ class EmbedderBase(ABC):
 
     @abstractmethod
     def embed_text(self, text: str) -> List[float]:
-        """Convert a single text string into an embedding vector"""
         pass
 
     @abstractmethod
     def embed_image(self, image: bytes) -> List[float]:
-        """Convert an image file into an embedding vector"""
         pass
 
     @abstractmethod
     def get_vector_size(self) -> int:
-        """Returns the size of the embedding vectors produced by this embedder"""
         pass
 
 
 class MockEmbedder(EmbedderBase):
-    """A mock embedder for development purposes
+    """Mock embedder that generates random vectors. Used for testing and development.
     """
 
     def __init__(self, size: int = 32):
@@ -88,9 +85,6 @@ class JinaClipV2(EmbedderBase):
 
 
 def create_embedder(model_name: str) -> EmbedderBase:
-    """Factory function to create an embedder instance based on the model name
-    """
-
     if model_name == "mock":
         return MockEmbedder(size=EMB_SIZE["mock"])
     elif model_name == "jina-clip-v2":

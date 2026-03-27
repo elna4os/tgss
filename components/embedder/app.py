@@ -1,9 +1,12 @@
 import os
 
 import uvicorn
+from dotenv import load_dotenv
 from embedders import EmbedderBase, create_embedder
 from fastapi import FastAPI, File, UploadFile
 from fastapi_models import EmbedResponse
+
+load_dotenv()
 
 
 def create_app(embedder: EmbedderBase) -> FastAPI:

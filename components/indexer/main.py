@@ -15,9 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 async def main():
-    """Main entry point for the bot.
-    """
-
     db = await Database.create(dsn=config.POSTGRES_DSN)
     embedder = EmbedderClient(base_url=config.EMBEDDER_URL)
     vector_size = await embedder.get_vector_size()
@@ -64,29 +61,22 @@ async def main():
 
     logger.info("Bot is running")
     await tg_client.run_until_disconnected()
-
     await db.close()
     await qdrant.close()
     await embedder.close()
 
 
 async def _initial_index(client: TelegramClient, indexer: Indexer) -> None:
-    """Perform the initial indexing of messages.
-
-    Args:
-        client (TelegramClient): The Telegram client instance.
-        indexer (Indexer): The indexer instance.
-    """
-
     logger.info("Starting initial indexing (INITIAL_INDEX_MONTHS=%d)...", config.INITIAL_INDEX_MONTHS)
 
     max_indexed_id = await indexer.db.get_max_post_id(config.CHANNEL_ID)
-
     kwargs: dict = {'reverse': True}
     if max_indexed_id:
-        # Resume from where we left off
         kwargs["min_id"] = max_indexed_id
         logger.info("Resuming from post_id=%d", max_indexed_id)
+    elif config.INITIAL_INDEX_MONTHS == 0:
+        logger.info("INITIAL_INDEX_MONTHS=0, skipping initial indexing")
+        return
     elif config.INITIAL_INDEX_MONTHS > 0:
         cutoff = datetime.now(timezone.utc) - relativedelta(months=config.INITIAL_INDEX_MONTHS)
         kwargs["offset_date"] = cutoff
@@ -95,7 +85,7 @@ async def _initial_index(client: TelegramClient, indexer: Indexer) -> None:
     async for message in client.iter_messages(config.CHANNEL_ID, **kwargs):
         await indexer.index_message(message)
         count += 1
-        logger.info("Indexed %d messages...", count)
+        logger.info("Indexed %d messages", count)
 
     logger.info("Initial indexing complete: %d messages processed", count)
 

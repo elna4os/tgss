@@ -5,36 +5,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    environment:
-      - EMBEDDER_MODEL=jina-clip-v2
+    env_file:
+      - ./components/embedder/.env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 10s
       timeout: 5s
       retries: 100
       start_period: 10s
-  qdrant:
-    image: qdrant/qdrant:latest
-    ports:
-      - "6333:6333"
-      - "6334:6334"
-    volumes:
-      - qdrant_data:/qdrant/storage
-  postgres:
-    image: postgres:17-alpine
-    environment:
-      - POSTGRES_USER=tgss
-      - POSTGRES_PASSWORD=tgss
-      - POSTGRES_DB=tgss
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tgss -d tgss"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+
   indexer:
     build:
       context: ./components/indexer
@@ -46,19 +25,11 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
-    environment:
-      - API_ID=${API_ID}
-      - API_HASH=${API_HASH}
-      - SESSION_PATH=/data/tgss
-      - CHANNEL_ID=${CHANNEL_ID}
-      - INITIAL_INDEX_MONTHS=${INITIAL_INDEX_MONTHS:-3}
-      - EMBEDDER_URL=http://embedder:8000
-      - QDRANT_HOST=qdrant
-      - QDRANT_PORT=6333
-      - QDRANT_COLLECTION=posts
-      - POSTGRES_DSN=postgresql://tgss:tgss@postgres:5432/tgss
+    env_file:
+      - ./components/indexer/.env
     volumes:
-      - ./session:/data
+      - ./components/indexer/session:/data
+
   bot:
     build:
       context: ./components/bot
@@ -68,14 +39,34 @@ services:
         condition: service_started
       qdrant:
         condition: service_started
-    environment:
-      - BOT_TOKEN=${BOT_TOKEN}
-      - CHANNEL_ID=${CHANNEL_ID}
-      - EMBEDDER_URL=http://embedder:8000
-      - QDRANT_HOST=qdrant
-      - QDRANT_PORT=6333
-      - QDRANT_COLLECTION=posts
-      - SEARCH_LIMIT=${SEARCH_LIMIT:-5}
+    env_file:
+      - ./components/bot/.env
+
+  qdrant:
+    build:
+      context: ./components/qdrant
+      dockerfile: Dockerfile
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  postgres:
+    build:
+      context: ./components/postgres
+      dockerfile: Dockerfile
+    env_file:
+      - ./components/postgres/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tgss -d tgss"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   qdrant_data:
