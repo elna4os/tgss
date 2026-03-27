@@ -88,5 +88,8 @@ In a private chat with the bot, send:
 - [x] Posts indexing (initial/new/edited/deleted)
 - [x] Search (limit usage to channel members)
 - [x] Replace mock embedder with a real one (text + image, Russian support)
-- [ ] Quantize Jina text/image encoders (int8 or FP16), convert to ONNX
+- [ ] Batch indexing (Triton server + ONNX?)
+- [ ] Improve ranking quality (jina-clip-v2 is not really good for text-image matching)
+- [ ] EmbedderClient: add timeouts
+- [ ] Event handlers: add exceptions handling
 - [ ] Better UX for search results
