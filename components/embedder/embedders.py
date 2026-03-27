@@ -9,7 +9,7 @@ from transformers import AutoModel
 
 EMB_SIZE = {
     "mock": 32,
-    "jina-clip-v2": 64
+    "jina-clip-v2": 1024
 }
 
 
@@ -54,7 +54,7 @@ class JinaClipV2(EmbedderBase):
     - Matryoshka embeddings allow to cut original emgedding to arbitrary first N dimensions
     """
 
-    def __init__(self, size: int = 64):
+    def __init__(self, size: int = 1024):
         self.size = size
         self.model = AutoModel.from_pretrained(
             "jinaai/jina-clip-v2",

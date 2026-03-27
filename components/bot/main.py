@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 import aiohttp
@@ -57,32 +58,51 @@ async def search_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     # Search in database
     try:
-        results = await qdrant.query_points(
-            collection_name=config.QDRANT_COLLECTION,
-            query=vector,
-            limit=config.SEARCH_LIMIT,
-            with_payload=True,
+        text_hits, image_hits = await asyncio.gather(
+            qdrant.query_points(
+                collection_name=config.QDRANT_COLLECTION,
+                query=vector,
+                query_filter={"must": [{"key": "modality", "match": {"value": "text"}}]},
+                limit=config.SEARCH_LIMIT,
+                with_payload=True,
+            ),
+            qdrant.query_points(
+                collection_name=config.QDRANT_COLLECTION,
+                query=vector,
+                query_filter={"must": [{"key": "modality", "match": {"value": "image"}}]},
+                limit=config.SEARCH_LIMIT,
+                with_payload=True,
+            ),
         )
-        hits = results.points
+        text_hits = text_hits.points
+        image_hits = image_hits.points
     except Exception as e:
         logger.error("Qdrant search failed: %s", e)
         await update.message.reply_text("Search is temporarily unavailable. Please try again later.")
         return
-    if not hits:
+    if not text_hits and not image_hits:
         await update.message.reply_text("No results found.")
         return
 
     # Process results
-    seen = set()
-    links = []
-    for hit in hits:
-        post_id = hit.payload.get("post_id")
-        chat_id = hit.payload.get("chat_id", config.CHANNEL_ID)
-        if post_id and post_id not in seen:
-            seen.add(post_id)
-            links.append(make_post_link(chat_id, post_id))
+    def dedupe_hits(hits):
+        seen = set()
+        links = []
+        for hit in hits:
+            post_id = hit.payload.get("post_id")
+            chat_id = hit.payload.get("chat_id", config.CHANNEL_ID)
+            if post_id and post_id not in seen:
+                seen.add(post_id)
+                links.append(make_post_link(chat_id, post_id))
+        return links
 
-    await update.message.reply_text("\n".join(links))
+    parts = []
+    if text_hits:
+        parts.append("By text:\n" + "\n".join(dedupe_hits(text_hits)))
+    if image_hits:
+        parts.append("By images:\n" + "\n".join(dedupe_hits(image_hits)))
+
+    await update.message.reply_text("\n\n".join(parts))
 
 
 async def init_resources(app: Application) -> None:

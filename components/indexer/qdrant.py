@@ -1,5 +1,6 @@
 from qdrant_client import AsyncQdrantClient
-from qdrant_client.models import (Distance, PointIdsList, PointStruct,
+from qdrant_client.models import (Distance, FieldCondition, Filter,
+                                  MatchValue, PointIdsList, PointStruct,
                                   VectorParams)
 
 
@@ -98,3 +99,21 @@ class QdrantStore:
         """
 
         await self._client.close()
+
+    async def query_points_by_modality(
+        self,
+        vector: list[float],
+        modality: str,
+        limit: int,
+    ) -> list:
+        results = await self._client.query_points(
+            collection_name=self._collection,
+            query=vector,
+            query_filter=Filter(
+                must=[FieldCondition(key="modality", match=MatchValue(value=modality))]
+            ),
+            limit=limit,
+            with_payload=True,
+        )
+
+        return results.points

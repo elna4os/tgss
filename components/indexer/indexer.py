@@ -44,7 +44,7 @@ class Indexer:
                 image_bytes = await self._tg_client.download_media(message=message, file=bytes)
                 vector = await self._embedder.embed_image(image_bytes=image_bytes)
             point_id = str(uuid4())
-            payload = {"post_id": message.id, "chat_id": message.chat_id}
+            payload = {"post_id": message.id, "chat_id": message.chat_id, "modality": part.modality}
             await self._qdrant.upsert(point_id=point_id, vector=vector, payload=payload)
             await self.db.insert_part(
                 post_id=message.id,
