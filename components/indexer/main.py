@@ -15,55 +15,68 @@ logger = logging.getLogger(__name__)
 
 
 async def main():
-    db = await Database.create(dsn=config.POSTGRES_DSN)
-    embedder = EmbedderClient(base_url=config.EMBEDDER_URL)
-    vector_size = await embedder.get_vector_size()
+    db = None
+    embedder = None
+    qdrant = None
+    tg_client = None
+    try:
+        db = await Database.create(dsn=config.POSTGRES_DSN)
+        embedder = EmbedderClient(base_url=config.EMBEDDER_URL)
+        vector_size = await embedder.get_vector_size()
 
-    qdrant = await QdrantStore.create(
-        host=config.QDRANT_HOST,
-        port=config.QDRANT_PORT,
-        collection=config.QDRANT_COLLECTION,
-        vector_size=vector_size
-    )
+        qdrant = await QdrantStore.create(
+            host=config.QDRANT_HOST,
+            port=config.QDRANT_PORT,
+            collection=config.QDRANT_COLLECTION,
+            vector_size=vector_size,
+            retry_attempts=config.QDRANT_RETRY_ATTEMPTS,
+            retry_backoff_seconds=config.QDRANT_RETRY_BACKOFF_SECONDS,
+        )
 
-    tg_client = TelegramClient(
-        session=config.SESSION_PATH,
-        api_id=config.API_ID,
-        api_hash=config.API_HASH
-    )
-    await tg_client.start()
+        tg_client = TelegramClient(
+            session=config.SESSION_PATH,
+            api_id=config.API_ID,
+            api_hash=config.API_HASH
+        )
+        await tg_client.start()
 
-    indexer = Indexer(
-        db=db,
-        qdrant=qdrant,
-        embedder=embedder,
-        tg_client=tg_client
-    )
+        indexer = Indexer(
+            db=db,
+            qdrant=qdrant,
+            embedder=embedder,
+            tg_client=tg_client
+        )
 
-    @tg_client.on(events.NewMessage(chats=config.CHANNEL_ID))
-    async def on_new_message(event):
-        logger.info("New message: %d", event.message.id)
-        await indexer.index_message(message=event.message)
+        @tg_client.on(events.NewMessage(chats=config.CHANNEL_ID))
+        async def on_new_message(event):
+            logger.info("New message: %d", event.message.id)
+            await indexer.index_message(message=event.message)
 
-    @tg_client.on(events.MessageEdited(chats=config.CHANNEL_ID))
-    async def on_message_edited(event):
-        logger.info("Edited message: %d", event.message.id)
-        await indexer.index_message(message=event.message)
+        @tg_client.on(events.MessageEdited(chats=config.CHANNEL_ID))
+        async def on_message_edited(event):
+            logger.info("Edited message: %d", event.message.id)
+            await indexer.index_message(message=event.message)
 
-    @tg_client.on(events.MessageDeleted(chats=config.CHANNEL_ID))
-    async def on_message_deleted(event):
-        chat_id = event.chat_id or config.CHANNEL_ID
-        for msg_id in event.deleted_ids:
-            logger.info("Deleted message: %d", msg_id)
-            await indexer.delete_message(post_id=msg_id, chat_id=chat_id)
+        @tg_client.on(events.MessageDeleted(chats=config.CHANNEL_ID))
+        async def on_message_deleted(event):
+            chat_id = event.chat_id or config.CHANNEL_ID
+            for msg_id in event.deleted_ids:
+                logger.info("Deleted message: %d", msg_id)
+                await indexer.delete_message(post_id=msg_id, chat_id=chat_id)
 
-    await _initial_index(client=tg_client, indexer=indexer)
+        await _initial_index(client=tg_client, indexer=indexer)
 
-    logger.info("Bot is running")
-    await tg_client.run_until_disconnected()
-    await db.close()
-    await qdrant.close()
-    await embedder.close()
+        logger.info("Bot is running")
+        await tg_client.run_until_disconnected()
+    finally:
+        if tg_client is not None:
+            await tg_client.disconnect()
+        if db is not None:
+            await db.close()
+        if qdrant is not None:
+            await qdrant.close()
+        if embedder is not None:
+            await embedder.close()
 
 
 async def _initial_index(client: TelegramClient, indexer: Indexer) -> None:
