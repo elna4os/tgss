@@ -11,6 +11,7 @@ After that, session/tgss.session will be created — it is mounted into the Dock
 import asyncio
 import os
 
+import config
 from dotenv import load_dotenv
 from telethon import TelegramClient
 
@@ -18,7 +19,7 @@ load_dotenv()
 
 API_ID = int(os.environ["API_ID"])
 API_HASH = os.environ["API_HASH"]
-SESSION_PATH = os.getenv("SESSION_PATH", "./session/tgss")
+SESSION_PATH = config.SESSION_PATH
 
 os.makedirs(os.path.dirname(SESSION_PATH), exist_ok=True)
 

@@ -1,18 +1,18 @@
 ## tgss
 
-Semantic search for Telegram channels. Users send `/search <query>` to the bot and get links to the most relevant posts, matched by text and image embeddings.
+Semantic search for Telegram channels. Users send `/search <query>` to the bot and get links to the most relevant posts, matched by text and image embeddings (this is a pet project - use at your own risk!).
 
 ---
 
 ### Architecture
 
-| Component    | Description                                                              |
-| ------------ | ------------------------------------------------------------------------ |
-| **bot**      | Handles `/search` commands, checks channel membership, queries Qdrant    |
-| **indexer**  | Monitors channel for new/edited/deleted messages, embeds and stores them |
-| **embedder** | FastAPI service wrapping Jina CLIP v2 (text + image embeddings)          |
-| **qdrant**   | Vector database for similarity search                                    |
-| **postgres** | Stores post metadata and tracks indexed parts                            |
+| Component    | Description                                                                                                           |
+| ------------ | --------------------------------------------------------------------------------------------------------------------- |
+| **bot**      | Handles `/search` commands, checks channel membership, queries Qdrant                                                 |
+| **indexer**  | Monitors channel for new/edited/deleted messages, embeds and stores them                                              |
+| **embedder** | FastAPI service wrapping Jina CLIP v2 (text + image embeddings). Available [models](components/embedder/embedders.py) |
+| **qdrant**   | Vector database for similarity search                                                                                 |
+| **postgres** | Stores post metadata and tracks indexed parts                                                                         |
 
 ---
 
@@ -63,7 +63,7 @@ pip install telethon python-dotenv
 python auth.py
 ```
 
-This will prompt for your phone number and confirmation code. The session file will be saved to `components/indexer/session/`.
+This will prompt for your phone number and confirmation code. The session file will be saved to `components/indexer/session/` (note: you need to enter your user credentials, not bot token, because bots cannot read channel messages).
 
 **3. Start**
 
@@ -88,8 +88,4 @@ In a private chat with the bot, send:
 - [x] Posts indexing (initial/new/edited/deleted)
 - [x] Search (limit usage to channel members)
 - [x] Replace mock embedder with a real one (text + image, Russian support)
-- [ ] Batch indexing (Triton server + ONNX?)
-- [ ] Improve ranking quality (jina-clip-v2 is not really good for text-image matching)
-- [ ] EmbedderClient: add timeouts
-- [ ] Event handlers: add exceptions handling
-- [ ] Better UX for search results
+- [x] Add JinaClipV2 ONNX + int8 version support

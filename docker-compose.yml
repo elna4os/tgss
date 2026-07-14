@@ -28,7 +28,7 @@ services:
     env_file:
       - ./components/indexer/.env
     volumes:
-      - ./components/indexer/session:/data
+      - ./components/indexer/session:/app/session
 
   bot:
     build:
